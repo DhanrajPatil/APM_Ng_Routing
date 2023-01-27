@@ -69,7 +69,7 @@
 
       <div class="row mt-2">
         <div class="col-md-4">
-          <button class="btn btn-primary mr-3"
+          <button class="btn btn-primary"
                   style="width:80px"
                   type="button"
                   [title]="productForm.valid ? 'Save your entered data' : 'Disabled until the form data is valid'"
@@ -77,14 +77,15 @@
                   (click)="saveProduct()">
             Save
           </button>
-          <button class="btn btn-outline-secondary mr-3"
-                  style="width:80px"
+          <button class="btn btn-outline-secondary"
+                  style="width:80px; margin-left: 10px"
                   type="button"
+                  (click)="cancelForm()"
                   title="Cancel your edits">
             Cancel
           </button>
           <button class="btn btn-outline-warning"
-                  style="width:80px"
+                  style="width:80px; margin-left: 10px"
                   type="button"
                   title="Delete this product"
                   (click)="deleteProduct()">
