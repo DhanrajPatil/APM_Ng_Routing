@@ -13,13 +13,48 @@ import { ProductService } from '../product.service';
 export class ProductEditComponent implements OnInit {
     pageTitle = 'Product Edit';
     errorMessage = '';
+    originalProduct!: Product;
+    _product!: Product;
+    isDataValid: {[key: string]: boolean} = {};
 
-    product: Product | null = null;
+    get product(): Product {
+        return this._product;
+    }
+    set product(val) {
+        this.originalProduct = {...val};
+        this._product = val;
+    }
 
     constructor(private productService: ProductService,
                 private messageService: MessageService,
                 private router: Router,
                 private route: ActivatedRoute) { }
+
+    isValid(path?: string): boolean {
+        if(path) {     
+            this.isDataValid[path] = this.isTabValid(path);
+            return this.isDataValid[path]; 
+        } else {
+            return this.isTabValid('info') && this.isTabValid('tags');
+        }
+    }
+
+    isFormDirty(): boolean {
+        return JSON.stringify(this.originalProduct) !== JSON.stringify(this.product);
+    }
+
+    isTabValid(tabName: string): boolean {
+        if(tabName === 'info' ) {
+            if(this.product && this.product.productName && this.product.productCode) {
+                return true;
+            }
+        } else if(tabName === 'tags'){
+            if(this.product.tags && Array.isArray(this.product.tags) && this.product.tags.length >= 2) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     ngOnInit(): void {
         // below code won't work if path parameter changes only in the URL
@@ -32,19 +67,16 @@ export class ProductEditComponent implements OnInit {
                 this.getProduct(numberId);
             } 
         */
-        this.route.paramMap.subscribe( (params) => {
-            const id = params.get('id');
-            if(id){
-                this.getProduct(+id);
+        this.route.data.subscribe (
+            (data) => {
+                const resolvedProduct = data['resolvedProduct'];
+                if(resolvedProduct.product) {
+                    this.onProductRetrieved(resolvedProduct.product);
+                } else {
+                    this.errorMessage = resolvedProduct.error;
+                }
             }
-        });
-    }
-
-    getProduct(id: number): void {
-        this.productService.getProduct(id).subscribe({
-            next: product => this.onProductRetrieved(product),
-            error: err => this.errorMessage = err
-        });
+        )
     }
 
     onProductRetrieved(product: Product): void {
@@ -93,15 +125,19 @@ export class ProductEditComponent implements OnInit {
         }
     }
 
+    resetForm() {
+        this.originalProduct =  this.product;
+    }
+
     onSaveComplete(message?: string): void {
+        this.resetForm();
         if (message) {
             this.messageService.addMessage(message);
         }
-
-        // Navigate back to the product list
+        this.router.navigateByUrl('products');
     }
-
+ 
     cancelForm() {
-        this.router.navigate(['products']);
+        this.router.navigate(['/products'], {queryParamsHandling: "preserve"});
     }
 }

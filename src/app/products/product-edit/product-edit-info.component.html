@@ -1,7 +1,7 @@
 <div class="card-body" *ngIf="product">
   <form novalidate
         #productForm="ngForm">
-    <fieldset>
+    <fieldset *ngIf="product">
       <legend>Basic Product Information</legend>
 
       <div class="row mt-4">

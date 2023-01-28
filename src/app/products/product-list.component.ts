@@ -1,6 +1,7 @@
+import { Router, ActivatedRoute } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 
-import { Product } from './product';
+import { Product, ProductListResolved } from './product';
 import { ProductService } from './product.service';
 
 @Component({
@@ -14,9 +15,9 @@ export class ProductListComponent implements OnInit {
     showImage = false;
     errorMessage = '';
 
-    _listFilter = '';
+    _listFilter: string | null = '';
     get listFilter(): string {
-        return this._listFilter;
+        return this._listFilter ? this._listFilter : '';
     }
     set listFilter(value: string) {
         this._listFilter = value;
@@ -26,16 +27,21 @@ export class ProductListComponent implements OnInit {
     filteredProducts: Product[] = [];
     products: Product[] = [];
 
-    constructor(private productService: ProductService) { }
+    constructor(private productService: ProductService,
+                private router: Router,
+                private route: ActivatedRoute) { }
 
     ngOnInit(): void {
-        this.productService.getProducts().subscribe({
-            next: products => {
-                this.products = products;
-                this.filteredProducts = this.performFilter(this.listFilter);
-            },
-            error: err => this.errorMessage = err
-        });
+        this._listFilter = this.route.snapshot.queryParamMap.get('listFilter');
+        this.showImage = this.route.snapshot.queryParamMap.get('showImage') === 'true';
+        const productsResponse = this.route.snapshot.data['productsResponse'];
+        if(productsResponse.products) {
+            this.products = productsResponse.products;
+            this.filteredProducts = this.performFilter(this.listFilter);
+        } else {
+            this.products = [];
+            this.filteredProducts = [];
+        }
     }
 
     performFilter(filterBy: string): Product[] {
@@ -47,5 +53,4 @@ export class ProductListComponent implements OnInit {
     toggleImage(): void {
         this.showImage = !this.showImage;
     }
-
 }

@@ -14,5 +14,11 @@ export interface Product {
 
 export interface ProductResolved {
   product: Product | null;
-  error?: string;
+  error?: string | undefined;
+}
+
+
+export interface ProductListResolved {
+  products: Product[] | null;
+  error?: string| undefined;
 }

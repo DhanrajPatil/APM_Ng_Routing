@@ -1,3 +1,4 @@
+import { LoginComponent } from './user/login.component';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
@@ -23,9 +24,10 @@ import { RouterModule } from '@angular/router';
     InMemoryWebApiModule.forRoot(ProductData, { delay: 1000 }),
     RouterModule.forRoot([
       { path: 'welcome', component: WelcomeComponent},
+      { path: 'login', component: LoginComponent },
       { path: '', redirectTo: '/welcome', pathMatch: 'full'},
       { path: '**', component: PageNotFoundComponent}
-    ], {useHash: true}),
+    ]),
     ProductModule,
     UserModule,
     MessageModule

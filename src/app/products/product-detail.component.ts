@@ -1,7 +1,7 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 
-import { Product } from './product';
+import { Product, ProductResolved } from './product';
 import { ProductService } from './product.service';
 
 @Component({
@@ -18,9 +18,16 @@ export class ProductDetailComponent implements OnInit {
                 private router: Router) {}
 
     ngOnInit(): void {
-        const id = this.route.snapshot.paramMap.get('id');
-        if(id) {
-            this.getProduct(+id);
+        // const id = this.route.snapshot.paramMap.get('id');
+        // if(id) {
+        //     this.getProduct(+id);
+        // }
+
+        const resolvedProduct: ProductResolved = this.route.snapshot.data['resolvedProduct'];
+        if(resolvedProduct.product) {
+            this.onProductRetrieved(resolvedProduct.product);
+        } else if(resolvedProduct.error){
+            this.errorMessage = resolvedProduct.error;
         }
     }
 
@@ -33,7 +40,6 @@ export class ProductDetailComponent implements OnInit {
 
     onProductRetrieved(product: Product): void {
         this.product = product;
-
         if (this.product) {
             this.pageTitle = `Product Detail: ${this.product.productName}`;
         } else {
@@ -42,6 +48,6 @@ export class ProductDetailComponent implements OnInit {
     }
 
     goBack() {
-        this.router.navigateByUrl('products');
+        this.router.navigate(['products'], {queryParamsHandling: "preserve"});
     }
 }
