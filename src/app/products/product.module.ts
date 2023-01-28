@@ -17,40 +17,34 @@ import { ProductListResolver } from './product-list.resolver';
     imports: [
         SharedModule,
         RouterModule.forChild([
-            {
-                path: 'products',
-                canActivate: [AuthGuard],
+            { 
+                path: '',
+                component: ProductListComponent,
+                resolve: { productsResponse: ProductListResolver }
+            },
+            { 
+                path: ':id',
+                component: ProductDetailComponent,
+                resolve: { resolvedProduct: ProductResolver }
+            },
+            { 
+                path: ':id/edit',
+                component: ProductEditComponent,
+                canDeactivate: [ProductEditGuard],
+                resolve: { resolvedProduct: ProductResolver },
                 children: [
-                    { 
+                    {
                         path: '',
-                        component: ProductListComponent,
-                        resolve: { productsResponse: ProductListResolver }
+                        redirectTo: 'info',
+                        pathMatch: 'full'
                     },
-                    { 
-                        path: ':id',
-                        component: ProductDetailComponent,
-                        resolve: { resolvedProduct: ProductResolver }
+                    {
+                        path: 'info',
+                        component: ProductEditInfoComponent
                     },
-                    { 
-                        path: ':id/edit',
-                        component: ProductEditComponent,
-                        canDeactivate: [ProductEditGuard],
-                        resolve: { resolvedProduct: ProductResolver },
-                        children: [
-                            {
-                                path: '',
-                                redirectTo: 'info',
-                                pathMatch: 'full'
-                            },
-                            {
-                                path: 'info',
-                                component: ProductEditInfoComponent
-                            },
-                            {
-                                path: 'tags',
-                                component: ProductEditTagsComponent
-                            }
-                        ]
+                    {
+                        path: 'tags',
+                        component: ProductEditTagsComponent
                     }
                 ]
             }

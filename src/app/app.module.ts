@@ -1,3 +1,5 @@
+import { SelectiveModuleStrategyService } from './selective-module-strategy.service';
+import { AuthGuard } from './user/auth.guard';
 import { LoginComponent } from './user/login.component';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -11,32 +13,39 @@ import { AppComponent } from './app.component';
 import { WelcomeComponent } from './home/welcome.component';
 import { PageNotFoundComponent } from './page-not-found.component';
 
-/* Feature Modules */
-import { ProductModule } from './products/product.module';
 import { UserModule } from './user/user.module';
 import { MessageModule } from './messages/message.module';
-import { RouterModule } from '@angular/router';
+import { PreloadAllModules, RouterModule } from '@angular/router';
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    InMemoryWebApiModule.forRoot(ProductData, { delay: 1000 }),
-    RouterModule.forRoot([
-      { path: 'welcome', component: WelcomeComponent},
-      { path: 'login', component: LoginComponent },
-      { path: '', redirectTo: '/welcome', pathMatch: 'full'},
-      { path: '**', component: PageNotFoundComponent}
-    ]),
-    ProductModule,
-    UserModule,
-    MessageModule
-  ],
-  declarations: [
-    AppComponent,
-    WelcomeComponent,
-    PageNotFoundComponent
-  ],
-  bootstrap: [AppComponent]
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        InMemoryWebApiModule.forRoot(ProductData, { delay: 1000 }),
+        RouterModule.forRoot([
+            { path: 'welcome', component: WelcomeComponent },
+            {
+                path: 'products',
+                data: {preload: false},
+                canActivate: [AuthGuard],
+                loadChildren: () => import('./products/product.module').then(m => m.ProductModule)
+            },
+            { path: 'login', component: LoginComponent },
+            { path: '', redirectTo: '/welcome', pathMatch: 'full' },
+            { path: '**', component: PageNotFoundComponent }
+        ], 
+        { 
+            useHash: true, 
+            preloadingStrategy: SelectiveModuleStrategyService 
+        }),
+        UserModule,
+        MessageModule
+    ],
+    declarations: [
+        AppComponent,
+        WelcomeComponent,
+        PageNotFoundComponent
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule { }
